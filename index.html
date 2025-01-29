@@ -41,6 +41,10 @@
             transition: transform 0.3s ease-in-out;
         }
 
+        .gift-box:hover {
+            transform: scale(1.1);
+        }
+
         .selected {
             transform: scale(1.5);
             transition: transform 0.3s ease-in-out;
@@ -82,20 +86,20 @@
 <body>
     <div class="container mx-auto">
         <h1 class="mt-6">🎉 Chúc Mừng Năm Mới BaeMeii! 🎊</h1>
-        <p class="text-lg italic">Hộp quà sẽ tự động mở khi bạn vào trang! 🧧</p>
+        <p class="text-lg italic">Em hãy chọn 2 hộp quà để nhận lì xì may mắn! 🧧</p>
 
         <div class="gift-container">
-            <div id="box1" class="gift-box">
+            <div id="box1" onclick="openGift(1)" class="gift-box">
                 <img id="gift1" src="hopqua.png" alt="Hộp quà">
                 <p id="money1" class="money hidden">💰 300.000đ</p>
             </div>
 
-            <div id="box2" class="gift-box">
+            <div id="box2" onclick="openGift(2)" class="gift-box">
                 <img id="gift2" src="hopqua.png" alt="Hộp quà">
                 <p id="money2" class="money hidden">💰 200.000đ</p>
             </div>
 
-            <div id="box3" class="gift-box">
+            <div id="box3" onclick="openGift(3)" class="gift-box">
                 <img id="gift3" src="hopqua.png" alt="Hộp quà">
                 <p id="money3" class="money hidden">💰 250.000đ</p>
             </div>
@@ -106,32 +110,42 @@
         let selectedGifts = JSON.parse(localStorage.getItem("selectedGifts")) || [];
 
         function openGift(id) {
-            if (!selectedGifts.includes(id)) {
-                selectedGifts.push(id);
-                localStorage.setItem("selectedGifts", JSON.stringify(selectedGifts));
-            }
+            if (selectedGifts.length >= 2 || selectedGifts.includes(id)) return;
+
+            selectedGifts.push(id);
+            localStorage.setItem("selectedGifts", JSON.stringify(selectedGifts));
 
             document.getElementById(`gift${id}`).src = "hopqua_mo.png";
             document.getElementById(`money${id}`).classList.remove("hidden");
             document.getElementById(`box${id}`).classList.add("selected");
-        }
 
-        function autoOpenGifts() {
-            while (selectedGifts.length < 2) {
-                let randomGift = Math.floor(Math.random() * 3) + 1;
-                if (!selectedGifts.includes(randomGift)) {
-                    selectedGifts.push(randomGift);
-                }
+            // Nếu đã chọn đủ 2 hộp, ẩn hộp còn lại
+            if (selectedGifts.length === 2) {
+                [1, 2, 3].forEach(box => {
+                    if (!selectedGifts.includes(box)) {
+                        document.getElementById(`box${box}`).classList.add("hidden");
+                    }
+                });
             }
-
-            localStorage.setItem("selectedGifts", JSON.stringify(selectedGifts));
-            selectedGifts.forEach(id => openGift(id));
-
-            let remainingGift = [1, 2, 3].find(id => !selectedGifts.includes(id));
-            document.getElementById(`box${remainingGift}`).classList.add("hidden");
         }
 
-        autoOpenGifts();
+        function restoreState() {
+            selectedGifts.forEach(id => {
+                document.getElementById(`gift${id}`).src = "hopqua_mo.png";
+                document.getElementById(`money${id}`).classList.remove("hidden");
+                document.getElementById(`box${id}`).classList.add("selected");
+            });
+
+            if (selectedGifts.length === 2) {
+                [1, 2, 3].forEach(box => {
+                    if (!selectedGifts.includes(box)) {
+                        document.getElementById(`box${box}`).classList.add("hidden");
+                    }
+                });
+            }
+        }
+
+        restoreState();
     </script>
 </body>
 </html>
